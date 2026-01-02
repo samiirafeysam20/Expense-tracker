@@ -1,0 +1,207 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🔥 Expense Tracker Pro</title>  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Poppins", Arial, sans-serif;
+      min-height: 100vh;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+    }
+
+    .trackerBox {
+      width: 460px;
+      background: blanchedalmond;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e5e5;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 26px;
+      letter-spacing: 1px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      outline: none;
+      font-size: 15px;
+      background: #fff;
+      color: black;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid white;
+      border-radius: 14px;
+      background: white;
+      color: black;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: #fff;
+      color: #000;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    li {
+      background: #f9f9f9;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #ddd;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .removeBtn {
+      cursor: pointer;
+      font-size: 18px;
+      transition: transform 0.2s;
+    }
+
+    .removeBtn:hover {
+      transform: scale(1.3) rotate(10deg);
+    }
+
+    .summary {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 18px;
+      background: linear-gradient(135deg, white, white);
+      padding: 14px;
+      border-radius: 16px;
+      box-shadow: inset 0 0 10px white;
+    }
+
+    .categoryBox {
+      margin-top: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 16px;
+    }
+
+    .categoryBox p {
+      margin: 6px 0;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style></head><body><div class="trackerBox">
+  <h2>💸 Expense Tracker</h2>  <input type="text" id="expenseName" placeholder="Magaca kharashka">
+  <input type="number" id="expenseAmount" placeholder="Qiimaha ($)">  <select id="expenseCategory">
+    <option value="">Dooro Qeyb</option>
+    <option value="Cunto">🍔 Cunto</option>
+    <option value="Gaadiid">🚗 Gaadiid</option>
+    <option value="Kirro">🏠 Kirro</option>
+    <option value="Kale">📦 Kale</option>
+  </select><button onclick="addExpense()">➕ Ku dar Kharash</button>
+
+  <ul id="expenseList"></ul>  <div class="summary">
+    Wadarta Guud: $<span id="grandTotal">0</span>
+  </div>  <div class="categoryBox">
+    <p>Cunto <span id="cuntoTotal">0</span></p>
+    <p>Gaadiid <span id="gaadiidTotal">0</span></p>
+    <p>Kirro <span id="kirroTotal">0</span></p>
+    <p>Kale <span id="kaleTotal">0</span></p>
+  </div>
+</div><script>
+  let expenses = JSON.parse(localStorage.getItem("expenseData")) || [];
+
+  function addExpense() {
+    const name = expenseName.value;
+    const amount = Number(expenseAmount.value);
+    const category = expenseCategory.value;
+
+    if (name === "" || amount <= 0 || category === "") {
+      alert("Fadlan xogta buuxi");
+      return;
+    }
+
+    expenses.push({
+      name,
+      amount,
+      category,
+      date: new Date().toLocaleString()
+    });
+
+    localStorage.setItem("expenseData", JSON.stringify(expenses));
+
+    expenseName.value = "";
+    expenseAmount.value = "";
+    expenseCategory.value = "";
+
+    renderExpenses();
+  }
+
+  function renderExpenses() {
+    expenseList.innerHTML = "";
+
+    let total = 0;
+    let categories = { Cunto: 0, Gaadiid: 0, Kirro: 0, Kale: 0 };
+
+    expenses.forEach((e, i) => {
+      total += e.amount;
+      categories[e.category] += e.amount;
+
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <span>${e.name} (${e.category})<br><small>$${e.amount} • ${e.date}</small></span>
+        <span class="removeBtn" onclick="removeExpense(${i})">❌</span>
+      `;
+      expenseList.appendChild(li);
+    });
+
+    grandTotal.textContent = total;
+    cuntoTotal.textContent = categories.Cunto;
+    gaadiidTotal.textContent = categories.Gaadiid;
+    kirroTotal.textContent = categories.Kirro;
+    kaleTotal.textContent = categories.Kale;
+  }
+
+  function removeExpense(index) {
+    expenses.splice(index, 1);
+    localStorage.setItem("expenseData", JSON.stringify(expenses));
+    renderExpenses();
+  }
+
+  renderExpenses();
+</script></body>
+</html>
